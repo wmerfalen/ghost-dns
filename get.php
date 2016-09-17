@@ -1,3 +1,3 @@
 <?php
 
-echo file_get_contents("https://utils.slowip.net");
+echo file_get_contents("http://" . $argv[1]);
