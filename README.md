@@ -16,7 +16,7 @@ $ ./run.sh hhvm get.php     # Reroutes all DNS calls to resolve localhost
 # Configuration
 Currently, the configuration file is located at /etc/ghost.conf
 
-#Translations
+# Translations
 Edit /etc/ghost.conf. To setup a translation use the following example:
 
 some-website.com = 127.0.0.1 
