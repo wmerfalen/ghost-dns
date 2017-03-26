@@ -7,7 +7,11 @@ static struct translation *settings = NULL;
 static struct translation *settings_head = NULL;
 
 int gdns_conf_exists(void){
+#ifdef GHOSTDNS_CONFIG_FILE
+    return (fp = fopen(GHOSTDNS_CONFIG_FILE,"r")) != NULL;
+#else
     return (fp = fopen("/etc/ghost.conf","r")) != NULL;
+#endif
 }
 
 int gdns_resolve(char* node,char** target_host){
@@ -16,14 +20,36 @@ int gdns_resolve(char* node,char** target_host){
     if(!head){
         return GDNS_RESOLVE_NONE;
     }
+
+    /**************************************************************************/
+    /*                         "All" feature                                  */
+    /*========================================================================*/
+    /* Let's say you don't necessarily trust an application. You can use the  */
+    /* "all" setting to redirect all DNS calls to one IP address.             */
+    /*                                                                        */
+    /* Example usage:                                                         */
+    /* !all = 127.0.0.1                                                       */
+    /**************************************************************************/ 
     char* all_setting = NULL;
     if(gdns_conf_get_setting("all",&all_setting)){
         GDNS_DEBUG("[ghost] all setting: '%s'\n",all_setting);
         *target_host = all_setting;
         return GDNS_RESOLVE_ALL;
     }
+
+    /**************************************************************************/
+    /*                         Host Translations                              */
+    /*========================================================================*/
+    /* You can translate host names from strings to IP addresses using this   */
+    /* feature. Simply specify a host name and assign that the desired IP     */
+    /* address.                                                               */
+    /*                                                                        */
+    /* Example usage:                                                         */
+    /* google.com = 127.0.0.1                                                 */
+    /**************************************************************************/
     do{
         GDNS_DEBUG("[ghost] debug key: '%s' node: '%s'\n",t->key,node);
+        //TODO: do regular expression match here
         if(strcmp(t->key,node) == 0){
             GDNS_DEBUG("[ghost] found resolve translation: '%s'\n",t->key);
             GDNS_DEBUG("[ghost] value: '%s'\n",t->value);
@@ -31,6 +57,15 @@ int gdns_resolve(char* node,char** target_host){
             return GDNS_RESOLVE_TRANSLATED;
         }
     }while(t = t->next);
+
+    /**************************************************************************/
+    /*                        localhost flag                                  */
+    /*========================================================================*/
+    /* The localhost flag is a shortcut for doing !all = 127.0.0.1            */
+    /*                                                                        */
+    /* Example usage:                                                         */
+    /* !localhost                                                             */
+    /**************************************************************************/
     if(gdns_conf_get_setting_flag("localhost")){
         GDNS_DEBUG("[ghost] settings flag !localhost set\n");
         *target_host = "localhost";
@@ -55,6 +90,7 @@ int gdns_conf_parse(void){
         }
         char* key,*value;
         if(gdns_conf_parse_setting(temp,&key,&value)){
+            GDNS_DEBUG("[parse setting]: %s\n",temp);
             if(!settings){
                 settings = (struct translation*)malloc(sizeof(struct translation));
                 settings_head = settings;
@@ -66,12 +102,13 @@ int gdns_conf_parse(void){
             settings->value = value;
             settings->next = NULL;
         }else if(gdns_conf_parse_translation(temp,&key,&value)){
+            GDNS_DEBUG("[parse translation]: %s\n",temp);
             struct translation * t = (struct translation*)malloc(sizeof(struct translation));
             if(!list){
-                list = t;
-                head = list;
+                head = list = t;
             }else{
                 list->next = t;
+                list = list->next;
             }
             t->key = key;
             t->value = value;
@@ -136,6 +173,7 @@ int gdns_conf_parse_setting(char* line,char ** out_key,char** out_value){
         char* value = strtok(NULL,"=");
         if(key == NULL){
             *out_key = NULL;
+            *out_value = NULL;
             return 0;
         }
         trim_string(key,&key);
@@ -150,31 +188,27 @@ int gdns_conf_parse_setting(char* line,char ** out_key,char** out_value){
 
 int gdns_conf_get_setting(char* setting,char** out){
     struct translation* t = settings_head;
-    if(!t){
-        *out = NULL;
-        return 0;
-    }
-    do{
+    while(t){
         GDNS_DEBUG("[ghost] setting: '%s', key: '%s'\n",setting,t->key);
         if(strcmp(setting,t->key) == 0){
             *out = t->value;
             return 1;
         }
-    }while(t = t->next);
+        t = t->next;
+    }
+    *out = NULL;
     return 0;
 }
 
 int gdns_conf_get_setting_flag(char* setting){
     struct translation* t = settings_head;
-    if(!t){
-        return 0;
-    }
-    do{
+    while(t){
         GDNS_DEBUG("[ghost] setting: '%s', key: '%s'\n",setting,t->key);
         if(strcmp(setting,t->key) == 0){
             return 1;
         }
-    }while(t = t->next);
+        t = t->next;
+    }
     return 0;
 }
 
