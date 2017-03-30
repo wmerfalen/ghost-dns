@@ -37,9 +37,13 @@ Edit /etc/ghost.conf. The "localhost" feature is merely a shortcut for `!all = 1
 And that's it. Every request will be redirected to localhost
 
 # Planned features
+- Daemon that creates a shared memory object that allows the LD_PRELOAD'd process to access when trying to get dns translations/settings
 - Regular expression matching of hosts
 - Whitelisting. Any hosts that aren't in /etc/ghost.conf will be redirected to a black hole
 - Blacklisting.
+
+# Need to fix
+- As of now, the code is a mix between C style memory allocs (linked lists) and C++ style stuff. I want to eventually replace the linked lists with stl containers
 
 # Like to have 
 - Allow user to specify a library and function to load. This function will be passed the host name and it shall return the translated IP
