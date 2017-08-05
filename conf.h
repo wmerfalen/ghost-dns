@@ -1,5 +1,6 @@
 #ifndef __GHOST_CONF_HEADER__
 #define __GHOST_CONF_HEADER__ 1
+#include <iostream>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -12,7 +13,6 @@
 #define GDNS_RESOLVE_TRANSLATED 2
 #define GDNS_RESOLVE_LOCALHOST 3
 #define GDNS_RESOLVE_NO_TRANSLATION 4
-#define GDNS_RESOLVE_NEEDS_FREE 4
 
 #define GDNS_BUFFER_SIZE 512
 #define GDNS_DEBUG(...) fprintf(stderr,__VA_ARGS__);
@@ -25,7 +25,8 @@ struct translation{
 
 
 void gdns_init(void);
-int gdns_resolve(char* node,char** target_host);
+template <typename NodeType,typename HostType>
+int gdns_resolve(NodeType node,HostType target_host);
 int gdns_conf_exists(void);
 int gdns_conf_parse(void);
 int gdns_get_translation(const char* node,char** translated);

@@ -1,4 +1,4 @@
-#include "conf.hpp"
+#include "conf.h"
 
 static FILE* fp = NULL;
 static struct translation *list = NULL;
