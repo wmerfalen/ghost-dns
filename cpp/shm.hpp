@@ -27,10 +27,23 @@ class  shm {
         ~shm(){ if(m_data && m_id){ detach(); } }
         int alloc(const char*,int,size_t,int);
 #ifdef GHOSTDNS_USE_SHM_CONFIG
+		/** 
+		 * param: size_t memory size to alloc
+		 * param: int flags to send to shmget function
+		 * return 0 if okay, less than zero on error
+		 */
         inline int alloc(size_t s,int f){ return alloc(::shm::memory_id,::shm::project_id,s,f); }
+		/**
+		 * param size_t the size of the shared memory segment to grab
+		 * param char** the char* pointer to place the data
+		 * return 0 if okay, less than zero on error
+		 */
         static inline int access(size_t memory_size,char** out_ptr){
             return access(::shm::memory_id,::shm::project_id,memory_size,out_ptr);
         }
+		/**
+		 * Automatically detect the size of the shared memory segment
+		 */
         inline size_t detect_size(){
             return detect_size(::shm::memory_id,::shm::project_id);
         }

@@ -1,12 +1,16 @@
 #include "conf.hpp"
 
+namespace gdns {
+
+
+/** Phase 2: convert these to private stl container member variables */
 static FILE* fp = NULL;
 static struct translation *list = NULL;
 static struct translation *head = NULL;
 static struct translation *settings = NULL;
 static struct translation *settings_head = NULL;
 
-int gdns_conf_exists(void){
+bool conf::exists(void){
 #ifdef GHOSTDNS_CONFIG_FILE
     return (fp = fopen(GHOSTDNS_CONFIG_FILE,"r")) != NULL;
 #else
@@ -14,8 +18,8 @@ int gdns_conf_exists(void){
 #endif
 }
 
-template <typename NodeType,typename HostType>
-int gdns_resolve(NodeType node,HostType target_host){
+template <typename StringType>
+int conf<StringType>::resolve(StringType node,StringType& target_host){
     target_host = "localhost";
     struct translation *t = head;
     if(!head){
@@ -32,7 +36,7 @@ int gdns_resolve(NodeType node,HostType target_host){
     /* !all = 127.0.0.1                                                       */
     /**************************************************************************/ 
     char* all_setting = NULL;
-    if(gdns_conf_get_setting("all",&all_setting)){
+    if(m_get_setting("all",&all_setting)){
         GDNS_DEBUG("[ghost] all setting: '%s'\n",all_setting);
         target_host = all_setting;
         return GDNS_RESOLVE_ALL;
@@ -68,7 +72,7 @@ int gdns_resolve(NodeType node,HostType target_host){
     /* Example usage:                                                         */
     /* !localhost                                                             */
     /**************************************************************************/
-    if(gdns_conf_get_setting_flag("localhost")){
+    if(m_get_setting_flag("localhost")){
         GDNS_DEBUG("[ghost] settings flag !localhost set\n");
         target_host = "localhost";
         return GDNS_RESOLVE_LOCALHOST;
@@ -76,7 +80,8 @@ int gdns_resolve(NodeType node,HostType target_host){
     return GDNS_RESOLVE_NO_TRANSLATION;
 }
 
-int gdns_conf_parse(void){
+template <typename StringType>
+int conf<StringType>::parse(void){
     char buffer[GDNS_BUFFER_SIZE];
     char *temp = NULL;
     if(fp == NULL){
@@ -91,7 +96,7 @@ int gdns_conf_parse(void){
             break;
         }
         char* key,*value;
-        if(gdns_conf_parse_setting(temp,&key,&value)){
+        if(m_parse_setting(temp,&key,&value)){
             GDNS_DEBUG("[parse setting]: %s\n",temp);
             if(!settings){
                 settings = (struct translation*)malloc(sizeof(struct translation));
@@ -120,6 +125,7 @@ int gdns_conf_parse(void){
     return 1;
 }
 
+
 void gdns_dump_list(void){
     struct translation * t = head;
     if(!head){
@@ -138,62 +144,61 @@ void gdns_dump_list(void){
     }while(t = t->next);
 }
 
-int gdns_conf_parse_translation(char *line,char** out_key,char** out_value){
+template <typename StringType>
+int conf<StringType>::m_parse_translation(const StringType& line,StringType& out_key,StringType& out_value){
     char *temp = strtok(line,"=");
     if(temp == NULL){
-        *out_key = *out_value = NULL;
+        out_key = out_value = nullptr;
         return 0;
     }
 
     char* trimmed;
     trim_string(temp,&trimmed);
     if(!trimmed || strlen(trimmed) == 0){
-        *out_key = *out_value = NULL;
+        out_key = out_value = nullptr;
         return 0;
     }
-    *out_key = trimmed;
+    out_key = trimmed;
     temp = strtok(NULL,"=");
     if(temp == NULL){
-        *out_value = NULL;
+        out_value = nullptr;
         return 0;
     }
     trim_string(temp,&trimmed);
     if(!trimmed || strlen(trimmed) == 0){
-        if(*out_key)
-            free(*out_key);
         return 0;
     }
-    *out_value = trimmed;
+    out_value = trimmed;
     return 1;
 }
 
-
-int gdns_conf_parse_setting(char* line,char ** out_key,char** out_value){
+template <typename StringType>
+int conf<StringType>::m_parse_setting(const StringType& line,StringType& out_key,StringType& out_value){
     char* parts = NULL;
     if(strchr(line,'!') && ((parts = strtok(line,"!")) != NULL)){
         char* key = strtok(parts,"=");
         char* value = strtok(NULL,"=");
         if(key == NULL){
-            *out_key = NULL;
-            *out_value = NULL;
+            out_key =  out_value = nullptr;
             return 0;
         }
         trim_string(key,&key);
         trim_string(value,&value);
-        *out_key = key;
-        *out_value = value;
+        out_key = key;
+        out_value = value;
         return 1;
     }else{
         return 0;
     }
 }
 
-int gdns_conf_get_setting(char* setting,char** out){
+template <typename StringType>
+int conf<StringType>::m_get_setting(const StringType& setting,StringType& out){
     struct translation* t = settings_head;
     while(t){
         GDNS_DEBUG("[ghost] setting: '%s', key: '%s'\n",setting,t->key);
         if(strcmp(setting,t->key) == 0){
-            *out = t->value;
+            out = t->value;
             return 1;
         }
         t = t->next;
@@ -202,7 +207,8 @@ int gdns_conf_get_setting(char* setting,char** out){
     return 0;
 }
 
-int gdns_conf_get_setting_flag(char* setting){
+template <typename StringType>
+int m_get_setting_flag(const StringType& setting){
     struct translation* t = settings_head;
     while(t){
         GDNS_DEBUG("[ghost] setting: '%s', key: '%s'\n",setting,t->key);
@@ -237,7 +243,8 @@ void trim_string(char* string,char** out){
     strncpy(*out,start,end-start);
 }
 
-void gdns_init(void){
+template <typename StringType>
+void conf<StringType>::init(void){
     fp = NULL;
     list = NULL;
 }
@@ -248,7 +255,8 @@ void my_free(void* ptr){
     GDNS_DEBUG("[freed]\n");
 }
 
-void gdns_cleanup(void){
+template <typename StringType>
+void conf<StringType>::~conf(void){
     struct translation * n = NULL;
     struct translation * temp = NULL;
     if(fp)
@@ -286,3 +294,4 @@ void gdns_cleanup(void){
         settings = settings_head = NULL;
     }
 }
+};

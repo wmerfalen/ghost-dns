@@ -1,18 +1,21 @@
-GCC				= g++
+GCC				= clang++
 NAME			= ghost
-OUTPUT			= ${NAME}.so
-COMPILER_FLAGS	= -std=c++14 -Wall -O2 -fPIC
+BUILD_DIR		= ${PWD}/build
+OUTPUT			= ${BUILD_DIR}/${NAME}.so
+OBJECTS_DIR		= ${PWD}/objects
+COMPILER_FLAGS	= -std=c++14 -DGHOSTDNS_CONFIG_FILE=\"${PWD}/ghost.conf\" -Wall -O2 -fPIC
 DAEMON_LINKER_FLAGS 	= -lrt
 
-all: conf.o 
-	${GCC} ${COMPILER_FLAGS} gethostbyname.cpp -shared -o ${OUTPUT} -ldl conf.o 
+all: daemon viewer
+	${GCC} ${COMPILER_FLAGS} gethostbyname.cpp -shared -o ${OUTPUT} -ldl 
 
-conf.o: conf.cpp
-	${GCC} -c ${COMPILER_FLAGS} conf.cpp -o conf.o
+daemon: daemon.cpp lmdb.so
+	${GCC} ${COMPILER_FLAGS} ${PWD}/liblmdb/liblmdb.so daemon.cpp -o ${OBJECTS_DIR}/ghostdnsd ${DAEMON_LINKER_FLAGS}
 
-
-daemon: daemon.cpp
-	${GCC} ${COMPILER_FLAGS} daemon.cpp -o ghostdnsd ${DAEMON_LINKER_FLAGS}
-
+lmdb.so:
+	cd ${PWD}/liblmdb/ && make
 viewer: shm-viewer.cpp
-	${GCC} ${COMPILER_FLAGS} shm-viewer.cpp -o viewer ${DAEMON_LINKER_FLAGS}
+	${GCC} ${COMPILER_FLAGS} shm-viewer.cpp -o ${OBJECTS_DIR}/viewer ${DAEMON_LINKER_FLAGS}
+clean:
+	rm ${BUILD_DIR}/*
+	rm ${OBJECTS_DIR}/*
