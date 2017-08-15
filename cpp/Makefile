@@ -3,7 +3,7 @@ NAME			= ghost
 BUILD_DIR		= ${PWD}/build
 OUTPUT			= ${BUILD_DIR}/${NAME}.so
 OBJECTS_DIR		= ${PWD}/objects
-COMPILER_FLAGS	= -std=c++14 -DGHOSTDNS_CONFIG_FILE=\"${PWD}/ghost.conf\" -Wall -O2 -fPIC
+COMPILER_FLAGS	= -std=c++14 -DGDNS_DONT_PARSE=1 -DGHOSTDNS_CONFIG_FILE=\"${PWD}/ghost.conf\" -Wall -O2 -fPIC
 DAEMON_LINKER_FLAGS 	= -lrt
 
 all: daemon viewer
