@@ -2,9 +2,9 @@
 Reroutes all DNS traffic by (ab)using an LD_PRELOAD hack
 
 # Building:
-Run the "m" script. I know, I know, it should be a makefile. Whatever.
+The C makefile no longer works. Development is being done in the cpp directory. cd to the cpp directory and execute make
 ```
-$ ./m
+$ cd cpp && make
 ```
 # How To Use
 ```
@@ -13,7 +13,9 @@ $ ./run.sh <program>
 # Configuration
 
 Currently, the configuration file is located at /etc/ghost.conf
-To change the configuration file location, define `GHOSTDNS_CONFIG_FILE` when compiling
+To change the configuration file location, define `GHOSTDNS_CONFIG_FILE` when compiling. 
+Edit the Makefile definition to point to the ghost.conf file of your choice when compiling. 
+See -DGHOSTDNS_CONF_FILE
 
 # Translations
 Edit /etc/ghost.conf. To setup a translation use the following example:
@@ -21,6 +23,9 @@ Edit /etc/ghost.conf. To setup a translation use the following example:
 some-website.com = 127.0.0.1 
 ```
 The above example will replace all DNS calls to resolve 'some-website.com' to 127.0.0.1
+
+# Debug output
+Lots of debug output if you're using large files. You can comment out the GDNS_DEBUG function *body*. Commenting out the define macro itself will likely result in build-time errors.
 
 # "All" feature
 Edit /etc/ghost.conf. To make use of the "All" feature, use the following example:
