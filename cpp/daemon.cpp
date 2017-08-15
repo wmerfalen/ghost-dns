@@ -5,13 +5,12 @@
 
 int main(int argc,char** argv){
 	/** Parse config file */
-#ifndef GDNS_DONT_PARSE
 	gdns::conf<std::string> c;
 	if(c.parse() < 0){
 		std::cerr << "Unable to parse config file!\n";
 		return 1;
 	}
-#endif
+	c.dump_list();
 	/** Store entries in lmdb */
 	std::unique_ptr<gdns::lmdb::server> db = std::make_unique<gdns::lmdb::server>("/tmp/ghostdns2","ghostdns2");
 	if(db->good() == false){
