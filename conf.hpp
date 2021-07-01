@@ -1,5 +1,5 @@
 #ifndef __GHOST_CONF_HEADER__
-#define __GHOST_CONF_HEADER__ 1
+#define __GHOST_CONF_HEADER__
 #include "util.hpp"
 #include <iostream>
 #include <fstream>
@@ -220,4 +220,3 @@ namespace gdns {
 
 }; /* End namespace */
 #endif
-#undef GDNS_DEBUG

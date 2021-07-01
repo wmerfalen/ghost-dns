@@ -1,12 +1,9 @@
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
-#include <stdio.h>
+//#include <stdio.h>
 #include <dlfcn.h>
-#define GDNS_STL
 #include "conf.hpp"
-#include <iostream>
-#include <string>
 
 extern "C" {
 	typedef struct _hostent {
@@ -71,15 +68,10 @@ extern "C" {
 		return c;
 	}
 
-	void debug(const char* f) {
-#ifdef __GHOST_DNS_SHOW_DEBUG_OUTPUT__
-		std::cerr << "[ghost-dns] debug: " << f << "\n";
-#endif
-	}
 	int resolve_host(const std::string& node,std::string& resolved_ptr) {
-		debug("resolve_host");
+		GDNS_DEBUG("resolve_host");
 		if(node.compare("0.0.0.0") == 0) {
-			debug("resolve_host -- 0.0.0.0");
+			GDNS_DEBUG("resolve_host -- 0.0.0.0");
 			resolved_ptr = "0.0.0.0";
 			return 0;
 		}
