@@ -7,12 +7,12 @@ $ make
 ```
 # How To Use
 ```
-$ ./run.sh <program>
+$ ./bin/run <program>
 ```
 # Example usage
 ```
 $ echo 'google.com = 127.0.0.1' > /etc/ghost.conf
-$ ./run.sh wget 'https://google.com/'
+$ ./bin/run wget 'https://google.com/'
 ```
 
 # Configuration
