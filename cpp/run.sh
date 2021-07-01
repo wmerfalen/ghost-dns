@@ -1,4 +1,4 @@
 #!/bin/bash
 #
-export LD_PRELOAD=$PWD/ghost.so 
+export LD_PRELOAD=$PWD/build/ghost.so 
 $@
