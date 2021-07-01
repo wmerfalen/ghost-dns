@@ -5,6 +5,12 @@ Reroutes all DNS traffic by (ab)using an `LD_PRELOAD` hack
 ```
 $ make
 ```
+# Notes about building
+I'm lazy and I hard-coded `g++-8` as the `CC` variable in the `Makefile`.
+You'll have to manually change this until I *get with the times* and learn
+CMake or autoconf. You'll also need atleast c++11 standards enabled. This
+largely depends on which compiler family you use.
+
 # How To Use
 ```
 $ ./bin/run <program>
