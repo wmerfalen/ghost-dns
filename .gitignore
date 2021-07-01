@@ -1,5 +1,1 @@
-m
 build/*
-*.o
-*.so
-objects
