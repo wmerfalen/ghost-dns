@@ -1,12 +1,17 @@
-GCC				= clang++
+GCC				= g++-8
 NAME			= ghost
-OUTPUT			= ${NAME}.so
 BUILD_DIR		= ${PWD}/build
+OUTPUT			= ${BUILD_DIR}/${NAME}.so
 OBJECTS_DIR		= ${PWD}/objects
-COMPILER_FLAGS	= -DGHOSTDNS_CONFIG_FILE=\"${PWD}/ghost.conf\" -Wall -O2 -fPIC
+COMPILER_FLAGS	= -std=c++2a -DGHOSTDNS_CONFIG_FILE=\"${PWD}/ghost.conf\" -Wall -O2 -fPIC -g
 
-all: conf.o
-	${GCC} ${COMPILER_FLAGS} gethostbyname.c -shared -o ${BUILD_DIR}/${OUTPUT} -ldl ${OBJECTS_DIR}/conf.o
+all: directories
+	${GCC} ${COMPILER_FLAGS} gethostbyname.cpp -shared -o ${OUTPUT} -ldl 
 
-conf.o: cpp/conf.cpp
-	${GCC} -c ${COMPILER_FLAGS} cpp/conf.cpp -o ${OBJECTS_DIR}/conf.o
+directories:
+	mkdir -p ${BUILD_DIR} ${OBJECTS_DIR} ${PWD}/ghostdns.db
+clean:
+	rm ${BUILD_DIR}/*
+	rm ${OBJECTS_DIR}/*
+test:
+	echo 'google.com = 127.0.0.1\n\n' > /etc/ghost.conf &&  ./run.sh 'wget https://google.com/'
