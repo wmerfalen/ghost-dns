@@ -1,21 +1,23 @@
 # ghost-dns
-Reroutes all DNS traffic by (ab)using an LD_PRELOAD hack
+Reroutes all DNS traffic by (ab)using an `LD_PRELOAD` hack
 
 # Building:
-The C makefile no longer works. Development is being done in the cpp directory. cd to the cpp directory and execute make
 ```
-$ cd cpp && make
+$ make
 ```
 # How To Use
 ```
 $ ./run.sh <program>
 ```
+# Example usage
+```
+$ echo 'google.com = 127.0.0.1' > /etc/ghost.conf
+$ ./run.sh wget 'https://google.com/'
+```
+
 # Configuration
 
 Currently, the configuration file is located at /etc/ghost.conf
-To change the configuration file location, define `GHOSTDNS_CONFIG_FILE` when compiling. 
-Edit the Makefile definition to point to the ghost.conf file of your choice when compiling. 
-See -DGHOSTDNS_CONF_FILE
 
 # Translations
 Edit /etc/ghost.conf. To setup a translation use the following example:
@@ -42,13 +44,9 @@ Edit /etc/ghost.conf. The "localhost" feature is merely a shortcut for `!all = 1
 And that's it. Every request will be redirected to localhost
 
 # Planned features
-- Daemon that creates a shared memory object that allows the LD_PRELOAD'd process to access when trying to get dns translations/settings
 - Regular expression matching of hosts
 - Whitelisting. Any hosts that aren't in /etc/ghost.conf will be redirected to a black hole
 - Blacklisting.
-
-# Need to fix
-- As of now, the code is a mix between C style memory allocs (linked lists) and C++ style stuff. I want to eventually replace the linked lists with stl containers
 
 # Like to have 
 - Allow user to specify a library and function to load. This function will be passed the host name and it shall return the translated IP
