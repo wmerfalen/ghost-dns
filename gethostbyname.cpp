@@ -5,9 +5,8 @@
 #include <dlfcn.h>
 #define GDNS_STL
 #include "conf.hpp"
-/** We use this macro to make it easier to interface with the shm stuff */
-#define GHOSTDNS_USE_SHM_CONFIG
-#include "shm.hpp"
+#include <iostream>
+#include <string>
 
 extern "C" {
 	typedef struct _hostent {

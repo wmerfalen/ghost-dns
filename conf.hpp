@@ -1,7 +1,12 @@
 #ifndef __GHOST_CONF_HEADER__
 #define __GHOST_CONF_HEADER__ 1
-
-#include "db.hpp"
+#include "util.hpp"
+#include <iostream>
+#include <fstream>
+#include <unordered_map>
+#include <stdio.h>
+#include <string.h>
+#include <memory>
 
 #ifdef __GHOST_DNS_SHOW_DEBUG_OUTPUT__
 #define GDNS_DEBUG(A) std::cerr << "[gdns::conf][debug]:'" << A << "'\n";
